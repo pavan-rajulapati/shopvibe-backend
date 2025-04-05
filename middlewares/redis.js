@@ -1,4 +1,3 @@
-// redisClient.js
 const { Redis } = require('@upstash/redis');
 require('dotenv').config();
 
