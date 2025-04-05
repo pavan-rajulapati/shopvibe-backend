@@ -1,13 +1,16 @@
-const Redis = require('ioredis');
+const { Redis } = require('@upstash/redis');
+require('dotenv').config()
 
-const redisClient = new Redis(process.env.REDIS_URL);
-
-redisClient.on('connect', () => {
-  console.log('✅ Redis connection established (Upstash)');
+const redisClient = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-redisClient.on('error', (error) => {
-  console.error('❌ Redis Client Error:', error.message);
-});
+if(redisClient){
+    console.log('Redis connection established')
+}else
+    console.log('Redis connection loss')
 
 module.exports = redisClient;
+
+
