@@ -17,11 +17,11 @@ dotEnv.config()
 // cors for API routes
 
 app.options('*', cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://shopvibe-orpin.vercel.app',
     credentials: true
 }));
 app.use(cors({
-    origin: 'http://localhost:3000', 
+    origin: 'https://shopvibe-orpin.vercel.app', 
     credentials: true, 
 }));
 
