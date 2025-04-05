@@ -1,21 +1,13 @@
-const redis = require('redis');
+const Redis = require('ioredis');
 
-const redisClient = redis.createClient();
-
-redisClient.on('error', (error) => {
-    console.error('Redis Client Error:', error.message);
-});
+const redisClient = new Redis(process.env.REDIS_URL);
 
 redisClient.on('connect', () => {
-    console.log('Redis connection established');
+  console.log('✅ Redis connection established (Upstash)');
 });
 
-const connectRedis = async () => {
-    if (!redisClient.isOpen) {
-        await redisClient.connect();
-    }
-};
-
-connectRedis();
+redisClient.on('error', (error) => {
+  console.error('❌ Redis Client Error:', error.message);
+});
 
 module.exports = redisClient;
