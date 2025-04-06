@@ -1,7 +1,7 @@
 const Order = require('../../models/order.model');
 require('dotenv').config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 // Stripe Webhook Secret Key for signature verification
 
@@ -35,7 +35,7 @@ const handleOrder = async (req, res) => {
         await order.save();
 
         // Save the order to Redis (optional)
-        await redisClient.setEx(`order:${userId}`, 60 * 60, JSON.stringify(order));
+        await setRedisCache(`order:${userId}`, order, 60 * 60);
 
         // Create a PaymentIntent if you're integrating payment here
         const paymentIntent = await stripe.paymentIntents.create({

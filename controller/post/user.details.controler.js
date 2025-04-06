@@ -1,23 +1,22 @@
 const userDetails = require('../../models/userDetails.model')
-const redisClient = require('../../middlewares/redis')
-const sendResponse = require('./sendResponse')
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleUserDetails = async(req, res)=>{
     const {firstName, lastName, gender, dateOfBirth, mobileNumber} = req.body;
 
     if(!firstName || !lastName || !gender || !dateOfBirth || !mobileNumber) {
-        sendResponse(res, 400,'error', 'Fields Required' || 'Unknown Error')
+        return res.json({success : false, message : "Fields required"})
     }
 
     const userId = req.user?._id;
     if(!userId){
-        sendResponse(res, 401,'error', 'Unauthorized' || 'Unknown Error')
+        return res.json({success : false, message : "Unauthorized"})
     }
 
     try {
         const isDetailExist = await userDetails.findOne({userId})
         if(isDetailExist){
-            sendResponse(res, 302,'error', 'Details Already Existed' || 'Unknown Error')
+            return res.json({success : false, message : "Details already existed"})
         }
 
         const UserDetails = new userDetails({
@@ -30,12 +29,12 @@ const handleUserDetails = async(req, res)=>{
         })
 
         await UserDetails.save()
-        await redisClient.setEx(`userDetails:${userId._id}`,60 * 60, JSON.stringify(UserDetails))
+        await setRedisCache(`userDetails:${userId._id}`, UserDetails, 60 * 60)
 
-        sendResponse(res, 200,'success')
+        res.json({success : true, message : "success"})
     } catch (error) {
         console.log(error)
-        sendResponse(res, 500,'error', 'Internal Error' || 'Unknown Error')
+        return res.json({success : false, message : "Internal Error"})
     }
 }
 

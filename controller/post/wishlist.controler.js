@@ -1,5 +1,5 @@
 const Wishlist = require('../../models/wishlist.model')
-const redisClient = require('../../middlewares/redis')
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleWishlist = async(req,res)=>{
     const {productId} = req.body
@@ -20,7 +20,7 @@ const handleWishlist = async(req,res)=>{
             productId
         })
         await wishlist.save()
-        await redisClient.setEx(`wishlist:${userId._id}`,60 * 60,JSON.stringify(wishlist))
+        await setRedisCache(`wishlist:${userId._id}`, wishlist, 60 * 60)
 
         return res.status(200).json({message : 'success', wishlist})
     } catch (error) {

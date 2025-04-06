@@ -1,5 +1,5 @@
 const Cart = require('../../models/cart.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleCart = async (req, res) => {
     const userId = req.user._id;
@@ -10,7 +10,7 @@ const handleCart = async (req, res) => {
     try {
         const cacheKey = `cart:${userId}`;
         
-        const redisCache = await redisClient.get(cacheKey);
+        const redisCache = await setRedisCache.get(cacheKey);
 
         if (redisCache) {
             const cachedCartData = JSON.parse(redisCache);
@@ -39,7 +39,7 @@ const handleCart = async (req, res) => {
             return cart;
         });
 
-        await redisClient.setEx(cacheKey, 60 * 60, JSON.stringify(updatedUserData));
+        await setRedisCache(cacheKey, updatedUserData, 60 * 60);
 
         return res.status(200).json({ message: 'success', userData: updatedUserData });
     } catch (error) {

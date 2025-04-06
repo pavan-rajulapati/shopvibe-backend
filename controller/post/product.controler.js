@@ -1,7 +1,7 @@
 const Product = require('../../models/product.model');
 const multer = require('multer');
 const Seller = require('../../models/seller.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const storage = multer.diskStorage({
     filename: (req, file, cb) => {
@@ -63,7 +63,7 @@ const handleProduct = async (req, res) => {
 
             const savedProduct = await product.save();
 
-            await redisClient.setEx(`product:${savedProduct._id}`, 60 * 60, JSON.stringify(product));
+            await setRedisCache(`product:${savedProduct._id}`, product, 60 * 60);
 
             return res.status(200).json({
                 status: 'success',

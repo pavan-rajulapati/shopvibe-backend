@@ -1,5 +1,5 @@
 const Product = require('../../models/product.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleCategory = async (req, res) => {
     const category = req.params.category;
@@ -8,7 +8,7 @@ const handleCategory = async (req, res) => {
     }
 
     try {
-        const redisCache = await redisClient.get(`product:category:${category}`);
+        const redisCache = await setRedisCache.get(`product:category:${category}`);
         const productCount = await Product.countDocuments({ category });
 
         if (redisCache && JSON.parse(redisCache).length === productCount) {
@@ -22,7 +22,7 @@ const handleCategory = async (req, res) => {
         }
 
         await Promise.all([
-            redisClient.setEx(`product:category:${category}`, 60 * 60, JSON.stringify(collectionData)), 
+            setRedisCache(`product:category:${category}`, collectionData, 60 * 60), 
             res.status(200).json({ message: 'success', data: collectionData })
         ]);
 

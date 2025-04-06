@@ -1,11 +1,11 @@
 const Product = require('../../models/product.model'); 
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const getTotalProducts = async (req, res) => {
     try {
         const productId = req.params.productId;
 
-        const cachedProduct = await redisClient.get(`product:${productId}`);
+        const cachedProduct = await setRedisCache.get(`product:${productId}`);
         if (cachedProduct) {
             return res.status(200).json({ message: 'success', data: JSON.parse(cachedProduct) });
         }
@@ -16,7 +16,7 @@ const getTotalProducts = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        await redisClient.setEx(`product:${productId}`, 60 * 60, JSON.stringify(product));
+        await setRedisCache(`product:${productId}`, product, 60 * 60);
 
         res.status(200).json({ message: 'success', data: product });
     } catch (error) {

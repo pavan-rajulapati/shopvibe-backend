@@ -1,5 +1,5 @@
 const Seller = require('../../models/seller.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleSeller = async (req, res) => {
     const sellerId = req.params.sellerId;
@@ -9,7 +9,7 @@ const handleSeller = async (req, res) => {
     }
 
     try {
-        const redisCache = await redisClient.get(`seller:${sellerId}`);
+        const redisCache = await setRedisCache.get(`seller:${sellerId}`);
         const countData = await Seller.countDocuments({}); 
 
         if (redisCache) {
@@ -25,7 +25,7 @@ const handleSeller = async (req, res) => {
             return res.status(204).json({ message: 'No data available' });
         }
 
-        await redisClient.setEx(`seller:${sellerId}`, 60 * 60, JSON.stringify(collectionData));
+        await setRedisCache(`seller:${sellerId}`, collectionData, 60 * 60);
 
         return res.status(200).json({ message: 'success', data: collectionData });
 

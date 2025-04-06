@@ -1,6 +1,5 @@
 const Wishlist = require('../../models/wishlist.model')
-const redisClient = require('../../middlewares/redis')
-const mongoose = require('mongoose')
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleWishlist = async(req, res)=>{
     const userId = req.user._id
@@ -9,7 +8,7 @@ const handleWishlist = async(req, res)=>{
     }
 
     try {
-        const redisCache = await redisClient.get(`wishlist${userId}`)
+        const redisCache = await setRedisCache.get(`wishlist${userId}`)
         if(redisCache){
             const parsedRedisData = JSON.parse(redisCache)
             const countData = await Wishlist.countDocuments({userId})
@@ -24,7 +23,7 @@ const handleWishlist = async(req, res)=>{
             return res.status(204).json({message : 'Empty data'})
         }
 
-        await redisClient.setEx(`wishlist${userId}`,60 * 60,JSON.stringify(collectionData))
+        await setRedisCache(`wishlist${userId}`, collectionData, 60 * 60)
         return res.status(200).json({message : 'success', data : collectionData})
     } catch (error) {
         return res.status(500).json({message : 'Internal Error'})

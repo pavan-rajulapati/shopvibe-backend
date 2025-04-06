@@ -1,7 +1,6 @@
 const Seller = require('../../models/seller.model');
 const User = require('../../models/user.model');
-const redisClient = require('../../middlewares/redis');
-const sendResponse = require('./sendResponse')
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleSeller = async (req, res) => {
     const {
@@ -64,12 +63,8 @@ const handleSeller = async (req, res) => {
         await user.save();
 
         try {
-            await redisClient.set(
-                `seller:${newSeller._id}`,
-                JSON.stringify(newSeller),
-                'EX',
-                3600
-            );
+            await setRedisCache(
+                `seller:${newSeller._id}`, newSeller, 60 * 60);
         } catch (redisError) {
             console.error('Redis caching failed:', redisError.message);
         }

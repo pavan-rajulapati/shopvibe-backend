@@ -1,6 +1,6 @@
 const Cart = require('../../models/cart.model');
 const Product = require('../../models/product.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleCart = async (req, res) => {
     try {
@@ -32,7 +32,7 @@ const handleCart = async (req, res) => {
 
         await cart.save();
 
-        await redisClient.setEx(`cart:${userId}`, 60 * 60, JSON.stringify(cart));
+        await setRedisCache(`cart:${userId}`, cart, 60 * 60);
 
         return res.status(200).json({ message: 'Success', cart });
     } catch (error) {

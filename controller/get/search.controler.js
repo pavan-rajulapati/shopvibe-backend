@@ -1,5 +1,5 @@
 const Product = require('../../models/product.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const GetSearchProduct = async (req, res) => {
     try {
@@ -20,10 +20,10 @@ const GetSearchProduct = async (req, res) => {
 
         const redisKey = `search:products:${query}:page:${pageNumber}:limit:${limitNumber}`;
 
-        const cachedData = await redisClient.get(redisKey);
+        const cachedData = await setRedisCache.get(redisKey);
 
         if (cachedData) {
-            const { products, totalResults, totalPages } = JSON.parse(cachedData);
+            const { products, totalResults, totalPages } = cachedData;
             return res.status(200).json({
                 products,
                 currentPage: pageNumber,
@@ -40,11 +40,10 @@ const GetSearchProduct = async (req, res) => {
         const totalResults = await Product.countDocuments(searchCriteria);
         const totalPages = Math.ceil(totalResults / limitNumber);
 
-        await redisClient.set(
+        await setRedisCache(
             redisKey,
             JSON.stringify({ products, totalResults, totalPages }),
-            'EX',
-            3600 
+            60 * 60
         );
 
         res.status(200).json({

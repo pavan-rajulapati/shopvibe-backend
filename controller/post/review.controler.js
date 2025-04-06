@@ -1,5 +1,5 @@
 const Review = require('../../models/review.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleReview = async (req, res) => {
     const { productId, comment, rating } = req.body;
@@ -19,7 +19,7 @@ const handleReview = async (req, res) => {
 
         await review.save();
 
-        await redisClient.setEx(`review:${productId}`, 60 * 60, JSON.stringify(review));
+        await setRedisCache(`review:${productId}`, review, 60 * 60);
 
         return res.status(201).json({ message: 'Review added successfully', review });
     } catch (error) {

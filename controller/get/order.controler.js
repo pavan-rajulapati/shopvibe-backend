@@ -1,5 +1,5 @@
 const Order = require('../../models/order.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleOrder = async (req, res) => {
     const userId = req.user?._id;
@@ -8,7 +8,7 @@ const handleOrder = async (req, res) => {
     }
 
     try {
-        const redisCache = await redisClient.get(`order:${userId}`);
+        const redisCache = await setRedisCache.get(`order:${userId}`);
         const dataCount = await Order.countDocuments({ userId });
 
         if (redisCache && JSON.parse(redisCache).length === dataCount) {
@@ -20,7 +20,7 @@ const handleOrder = async (req, res) => {
             return res.status(404).json({ message: 'No orders found for this user' });
         }
 
-        await redisClient.setEx(`order:${userId}`, 60 * 60, JSON.stringify(userData));
+        await setRedisCache(`order:${userId}`, userData, 60 * 60);
 
         return res.status(200).json({ message: 'success', data: userData });
     } catch (error) {

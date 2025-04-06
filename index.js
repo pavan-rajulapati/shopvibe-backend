@@ -5,7 +5,6 @@ const dotEnv = require('dotenv')
 const mongoose  = require('mongoose')
 const cookies = require('cookie-parser')
 const path = require('path');
-const errorHandler = require('./middlewares/errorHandler')
 
 
 const app = express()
@@ -60,7 +59,6 @@ app.get('/', (req, res) => {
 
 app.use(require('./main_routes'))
 
-app.use(errorHandler)
 
 app.listen(port,()=>{
     console.log(`Port running at ${port}`);

@@ -1,5 +1,5 @@
 const User = require('../../models/user.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 
 const handleUser = async (req, res) => {
     const userId = req.user._id;
@@ -8,7 +8,7 @@ const handleUser = async (req, res) => {
     }
 
     try {
-        const redisCache = await redisClient.get(`user:${userId}`);
+        const redisCache = await setRedisCache.get(`user:${userId}`);
         if (redisCache) {
             return res.status(200).json({ message: 'success', userData: JSON.parse(redisCache) });
         } else {
@@ -17,7 +17,7 @@ const handleUser = async (req, res) => {
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            await redisClient.setEx(`user:${userId}`, 60 * 60, JSON.stringify(userData));
+            await setRedisCache(`user:${userId}`, userData, 60 * 60);
 
             return res.status(200).json({ message: 'success', userData });
         }

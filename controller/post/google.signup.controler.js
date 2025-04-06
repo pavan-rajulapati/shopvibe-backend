@@ -2,7 +2,7 @@ const User = require('../../models/user.model')
 const jwt = require('jsonwebtoken')
 const dotEnv = require('dotenv')
 const bcrypt = require('bcrypt')
-const redisClient = require('../../middlewares/redis')
+const setRedisCache = require('../../utils/setRedisCache')
 const setCookie = require('../../utils/cookies');
 
 dotEnv.config()
@@ -35,7 +35,7 @@ const handleGoogleSignup = async(req,res)=>{
 
         const token = await jwt.sign({userId : savedUser._id},secret_key,{expiresIn : '24h'})
         setCookie(res, token, process.env.NODE_ENV === 'production')
-        await redisClient.setEx(`user:${savedUser._id}`,60 * 60,JSON.stringify(savedUser))
+        await setRedisCache(`user:${savedUser._id}`, savedUser, 60 * 60)
 
         return res.status(200).json({message : 'success',authToken : token})
 

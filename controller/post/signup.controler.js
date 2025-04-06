@@ -1,5 +1,5 @@
 const User = require('../../models/user.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
@@ -33,7 +33,7 @@ const handleSignup = async (req, res) => {
 
         const token = jwt.sign({ userId: savedUser._id }, secret_key, { expiresIn: '24h' });
 
-        await redisClient.setEx(`user:${savedUser._id}`, 60 * 60, JSON.stringify(savedUser));
+        await setRedisCache(`user:${savedUser._id}`, savedUser, 60 * 60);
 
         setCookie(res, token, process.env.NODE_ENV === 'production');
         return res.status(200).json({ message: 'Success', authToken : token });

@@ -1,5 +1,5 @@
 const Review = require('../../models/review.model');
-const redisClient = require('../../middlewares/redis');
+const setRedisCache = require('../../utils/setRedisCache')
 const mongoose = require('mongoose');
 
 const handleReview = async (req, res) => {
@@ -14,7 +14,7 @@ const handleReview = async (req, res) => {
     }
 
     try {
-        const redisData = await redisClient.get(`review${productId}`);
+        const redisData = await setRedisCache.get(`review${productId}`);
         
         if (redisData) {
             const parsedRedisData = JSON.parse(redisData);
@@ -33,7 +33,7 @@ const handleReview = async (req, res) => {
             return res.status(204).json({ message: 'No data available' });
         }
 
-        await redisClient.setEx(`review${productId}`, 60 * 60, JSON.stringify(collectionData));
+        await setRedisCache(`review${productId}`, collectionData, 60 * 60);
 
         return res.status(200).json({ message: 'success', data: collectionData });
     } catch (error) {
