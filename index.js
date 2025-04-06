@@ -17,14 +17,14 @@ dotEnv.config()
 
 app.options('*', cors({
     origin: [
-        'https://shopvibe-6f4t6ixk0-pavan-kumars-projects-02b3ab8b.vercel.app',
+        'https://shopvibe-orpin.vercel.app',
         'http://localhost:3000'
     ],
     credentials: true
 }));
 app.use(cors({
     origin: [
-        'https://shopvibe-6f4t6ixk0-pavan-kumars-projects-02b3ab8b.vercel.app',
+        'https://shopvibe-orpin.vercel.app',
         'http://localhost:3000'
     ],
     credentials: true, 
